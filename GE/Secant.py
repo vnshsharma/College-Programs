@@ -1,4 +1,5 @@
 # Define the function
+
 def f(x):
     return x**3 - 4*x - 9  # Example function
 
