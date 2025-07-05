@@ -56,5 +56,3 @@ This section will include Python programs and explanations related to core topic
 **📌 Coming Soon...**
 
 ---
-
-## 📑 How to Run
