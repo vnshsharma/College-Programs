@@ -22,15 +22,6 @@ This section includes implementations and formulas for essential numerical metho
 **Description:**  
 A root-finding method that repeatedly halves an interval to locate a root of a given equation.
 
-**Formula:**  
-
-![Bisection Formula](../images/Bisection3.png)
-
-**Where:**  
-- `a, b` = Initial guesses (interval)  
-- `c` = Midpoint of interval  
-- `f(c)` = Function value at c  
-
 ---
 
 ### 🔹 Trapezoidal Rule
@@ -38,16 +29,6 @@ A root-finding method that repeatedly halves an interval to locate a root of a g
 **Description:**  
 A numerical integration method that approximates the area under a curve as a sum of trapezoid areas.
 
-**Formula:**  
-
-![Trapezoidal Formula](../images/Trapezoidal2.png)
-
-**Where:**  
-- `a, b` = Limits of integration  
-- `h` = (b - a) / n (interval width)  
-- `n` = Number of intervals  
-- `f(x)` = Function to integrate  
-- `I` = Approximate value of integral  
 
 ---
 
@@ -55,15 +36,7 @@ A numerical integration method that approximates the area under a curve as a sum
 
 **Description:**  
 An iterative technique to approximate the root of a function using a secant line between two approximations.
-
-**Formula:**  
-
-![Secant Formula](../images/Secant1.png)
-
-**Where:**  
-- `xₙ, xₙ₋₁` = Previous approximations  
-- `f(xₙ), f(xₙ₋₁)` = Function values at approximations  
-- `xₙ₊₁` = Next approximation  
+ 
 
 ---
 
@@ -72,14 +45,6 @@ An iterative technique to approximate the root of a function using a secant line
 **Description:**  
 A polynomial interpolation technique that estimates the value of a function based on known data points.
 
-**Formula:**  
-
-![Lagrange Formula](../images/Lagrange1.png)
-
-**Where:**  
-- `(x₀, y₀), (x₁, y₁), ..., (xₙ, yₙ)` = Known data points  
-- `P(x)` = Interpolated value at x  
-- `Lᵢ(x)` = Lagrange basis polynomial  
 
 ---
 
