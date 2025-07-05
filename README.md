@@ -24,11 +24,7 @@ A root-finding method that repeatedly halves an interval to locate a root of a g
 
 **Formula:**  
 
-$$
-c = \frac{a + b}{2}
-$$  
-
-If \( f(c) \times f(a) < 0 \), then the root lies in \([a, c]\). Otherwise, it lies in \([c, b]\).
+<img width="131" height="69" alt="Image" src="https://github.com/user-attachments/assets/281a4b68-b22e-4f42-8881-003c57988fa7" />
 
 ---
 
@@ -39,16 +35,7 @@ A numerical integration method that approximates the area under a curve as a sum
 
 **Formula:**  
 
-For \( n \) intervals:
-
-$$
-I = \frac{h}{2} \left[ f(x_0) + 2 \sum_{i=1}^{n-1} f(x_i) + f(x_n) \right]
-$$  
-
-Where:
-
-- \( h = \frac{b - a}{n} \)
-- \( a \) and \( b \) are integration limits.
+<img width="505" height="101" alt="Image" src="https://github.com/user-attachments/assets/4de0b43d-b036-4480-9df2-fcf69141b474" />
 
 ---
 
@@ -59,9 +46,7 @@ An iterative technique to approximate the root of a function using a secant line
 
 **Formula:**  
 
-$$
-x_{n+1} = x_n - \frac{f(x_n) \cdot (x_n - x_{n-1})}{f(x_n) - f(x_{n-1})}
-$$  
+<img width="430" height="79" alt="Image" src="https://github.com/user-attachments/assets/530ef131-c271-445a-8e56-9dad118156a6" />
 
 ---
 
@@ -72,17 +57,7 @@ A polynomial interpolation technique that estimates the value of a function base
 
 **Formula:**  
 
-Given data points \( (x_0, y_0), (x_1, y_1), \dots, (x_n, y_n) \):
-
-$$
-P(x) = \sum_{i=0}^{n} y_i \cdot L_i(x)
-$$  
-
-Where:
-
-$$
-L_i(x) = \prod_{\substack{j=0 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j}
-$$  
+<img width="348" height="118" alt="Image" src="https://github.com/user-attachments/assets/3ecd7564-023d-4433-b74a-c85d2d48f670" />
 
 ---
 
