@@ -1,66 +1,112 @@
-# 🎨 Visualizing Spherical Harmonics — Notes  
+# 📘 Euler's Method for Solving Ordinary Differential Equations
 
-This file contains brief, clear notes on **spherical harmonics** and the visualization of their **probability density** for various values of quantum numbers **l** and **m**.
+## 🧮 Overview
 
----
+Euler’s Method is a **numerical technique** used to approximate solutions of **first-order ordinary differential equations (ODEs)** of the form:
 
-## 📚 About Spherical Harmonics  
+\[
+\frac{dy}{dx} = f(x, y), \quad y(x_0) = y_0
+\]
 
-- Spherical harmonics are special mathematical functions used in quantum mechanics.
-- They describe the **angular part of the wavefunction** for systems with spherical symmetry (like atoms).
-- Help explain the shape and orientation of electron orbitals.
-
----
-
-## 📊 What Is Probability Density?  
-
-- Probability density tells us **how likely it is to find an electron (or particle) at a specific point in space**.
-- In this context, we visualize **the distribution of this probability density over a spherical surface**.
-- High-density areas indicate a greater chance of finding the particle there.
+It provides a way to compute the value of the function \( y \) at discrete points by taking small steps along the direction defined by the differential equation.
 
 ---
 
-## 📌 Quantum Numbers Involved  
+## 💡 Concept
 
-1. **l (Azimuthal Quantum Number)**
-   - Determines the **shape of the orbital**.
-   - Possible values: 0, 1, 2, 3, … (n-1)
+The idea is to start at the initial condition and use the slope (given by the differential equation) to project the next value. This is done repeatedly to approximate the solution curve.
 
-2. **m (Magnetic Quantum Number)**
-   - Determines the **orientation of the orbital shape in space**.
-   - Possible values: from **-l to +l**
+The update formula is:
 
----
+\[
+y_{n+1} = y_n + h \cdot f(x_n, y_n)
+\]
 
-## 📊 Why Visualize Spherical Harmonics?  
+Where:
 
-- To intuitively understand the shapes and symmetries of atomic orbitals.
-- Helps in picturing how the wavefunction behaves in different directions for various quantum number combinations.
-- Useful for interpreting atomic structures, bonding behavior, and physical properties of materials.
-
----
-
-## 📈 What Does the Visualization Show?  
-
-- 3D plots of probability density for given values of **l** and **m**.
-- The size and structure of the plot represent where an electron is most likely to be found.
-- Different (l, m) combinations produce different shapes:
-  - **l = 0, m = 0** → Spherical
-  - **l = 1, m = 0 or ±1** → Dumbbell shapes
-  - **l = 2, m = 0, ±1, ±2** → Clover-like and more complex shapes
+- \( y_n \): current value of the solution
+- \( x_n \): current value of the independent variable
+- \( h \): step size
+- \( f(x_n, y_n) \): the derivative at the current point
 
 ---
 
-## 📌 Purpose  
+## 🧾 Algorithm
 
-- To help students and learners **visualize abstract quantum mechanical concepts**.
-- To link theoretical quantum numbers with visible, understandable 3D shapes.
-- To strengthen the understanding of **probability distributions in atomic orbitals**.
+1. Set initial values \( x = x_0 \), \( y = y_0 \)
+2. Choose a step size \( h \)
+3. While \( x < x_{\text{end}} \):
+   - Compute next \( x \) as:  
+     \[
+     x_{n+1} = x_n + h
+     \]
+   - Compute next \( y \) as:  
+     \[
+     y_{n+1} = y_n + h \cdot f(x_n, y_n)
+     \]
 
 ---
 
-## 📑 Note  
+## 🔢 Example
 
-- These notes are part of the **Quantum Mechanics coursework** focusing on the visualization of spherical harmonics' probability densities.
-- Intended for academic and personal study purposes.
+Solve the differential equation:
 
+\[
+\frac{dy}{dx} = x + y, \quad y(0) = 1
+\]
+
+Approximate the solution from \( x = 0 \) to \( x = 1 \) using a step size \( h = 0.1 \).
+
+**Step-by-step (First 2 steps):**
+
+1. \( x_0 = 0 \), \( y_0 = 1 \)
+2. \( f(x_0, y_0) = 0 + 1 = 1 \)
+3. \( y_1 = 1 + 0.1 \cdot 1 = 1.1 \)
+4. \( f(x_1, y_1) = 0.1 + 1.1 = 1.2 \)
+5. \( y_2 = 1.1 + 0.1 \cdot 1.2 = 1.22 \)
+
+Continue this until \( x = 1 \)
+
+---
+
+## 📈 Accuracy
+
+Euler’s method is a **first-order method**:
+- Global error is \( \mathcal{O}(h) \)
+- Local error per step is \( \mathcal{O}(h^2) \)
+
+**Smaller step sizes** improve accuracy but require more computations.
+
+---
+
+## ⚠️ Limitations
+
+- Not suitable for stiff equations
+- Can be inaccurate if the function changes rapidly
+- Errors accumulate over steps
+
+---
+
+## 🧑‍💻 Sample Code (Python)
+
+```python
+def f(x, y):
+    return x + y  # Example: dy/dx = x + y
+
+def euler(x0, y0, h, x_end):
+    x = x0
+    y = y0
+    print(f"x = {x:.4f}, y = {y:.4f}")
+    
+    while x < x_end:
+        y = y + h * f(x, y)
+        x = x + h
+        print(f"x = {x:.4f}, y = {y:.4f}")
+
+# Initial conditions
+x0 = 0
+y0 = 1
+h = 0.1
+x_end = 1
+
+euler(x0, y0, h, x_end)
