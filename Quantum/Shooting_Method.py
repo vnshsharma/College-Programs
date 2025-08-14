@@ -1,6 +1,6 @@
 """
-The function `shooting_method` implements the shooting method to solve the Schrödinger equation for
-a free particle in a box with a given energy.
+Bhai ye Code maine AI ka use karke banaya hai.
+Isse simple kahi nahi milega
 """
 import math
 
@@ -41,7 +41,8 @@ def shooting_method():
     slope_min = 0.0
     slope_max = 10.0
 
-    for i in range(20):  # Fixed number of iterations
+    # Ye Bisection Method hai
+    for i in range(20):  
         slope_mid = (slope_min + slope_max) / 2
         if integrate(slope_min) * integrate(slope_mid) < 0:
             slope_max = slope_mid
