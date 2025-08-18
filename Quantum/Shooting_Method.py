@@ -1,5 +1,5 @@
 """
-Bhai ye Code maine AI ka use karke banaya hai.
+Bhai ye Code maine chatGPT ka use karke banaya hai.
 Isse simple kahi nahi milega
 """
 import math
