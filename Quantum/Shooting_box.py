@@ -1,73 +1,45 @@
-import math
+import numpy as np
 import matplotlib.pyplot as plt
 
-# RK4 solver for Schrödinger equation
-def solve(E, N=1000):
+def solve(E, slope, N=1000):
     h = 1 / N
-    xVals = [i * h for i in range(N+1)]  # grid from 0 to 1
-    psi, phi = 0.0, 1.0   # initial conditions
+    psi, phi = 0.0, slope
     values = [psi]
-    
-    for step in range(N):
-        k1psi = h * phi
-        k1phi = h * (-2 * E * psi)
-
-        k2psi = h * (phi + k1phi/2)
-        k2phi = h * (-2 * E * (psi + k1psi/2))
-
-        k3psi = h * (phi + k2phi/2)
-        k3phi = h * (-2 * E * (psi + k2psi/2))
-
-        k4psi = h * (phi + k3phi)
-        k4phi = h * (-2 * E * (psi + k3psi))
-
-        psi = psi + (k1psi + 2*k2psi + 2*k3psi + k4psi) / 6
-        phi = phi + (k1phi + 2*k2phi + 2*k3phi + k4phi) / 6
-
-        values.append(psi)
-    
-    # --- Normalization (Trapezoidal Rule) ---
-    norm = 0.0
     for i in range(N):
-        norm += (values[i]**2 + values[i+1]**2) * h / 2
-    norm = math.sqrt(norm)
+        k1psi, k1phi = h * phi, h * (-2 * E * psi)
+        k2psi, k2phi = h * (phi + k1phi / 2), h * (-2 * E * (psi + k1psi / 2))
+        k3psi, k3phi = h * (phi + k2phi / 2), h * (-2 * E * (psi + k2psi / 2))
+        k4psi, k4phi = h * (phi + k3phi), h * (-2 * E * (psi + k3psi))
+        psi += (k1psi + 2 * k2psi + 2 * k3psi + k4psi) / 6
+        phi += (k1phi + 2 * k2phi + 2 * k3phi + k4phi) / 6
+        values.append(psi)
+    return np.array(values)
 
-    for i in range(len(values)):
-        values[i] = values[i] / norm
-    # ----------------------------------------
+def psi_exact(x, n=1):
+    return np.sqrt(2) * np.sin(n * np.pi * x)
 
-    return xVals, values, psi
+# Define domain outside
+N = 1000
+x = np.linspace(0, 1, N + 1)
 
-# Analytical solution for n=1
-def psiAnalytical(xVals):
-    return [math.sqrt(2) * math.sin(math.pi * xi) for xi in xVals]
+# Trial energies
+for E in [4.0, 9.0, 16.0]:
+    psi = solve(E, slope=1.0, N=N)
+    plt.plot(x, psi, label=f"Trial E={E}")
 
-# Find correct energy via bisection
-Eleft, Eright = 4.0, 6.0
-for iteration in range(50):
-    Emid = (Eleft + Eright) / 2
-    xVals, values, psiLast = solve(Emid)
-    if abs(psiLast) < 1e-6:   # tolerance check
-        break
-    if psiLast > 0:
-        Eleft = Emid
-    else:
-        Eright = Emid
+# Eigenvalue solution (n=1)
+n = 1
+E_n = (n * np.pi) ** 2 / 2
+slope = np.sqrt(2) * n * np.pi
+psi_num = solve(E_n, slope, N)
+plt.plot(x, psi_num, "r", label=f"E_n={E_n:.4f} (eigenvalue)")
 
-# Solutions
-xVals, psiUnder, psiLast = solve(4.0)
-xVals, psiCorrect, psiLast = solve(Emid)
-xVals, psiOver, psiLast = solve(6.0)
-psiExact = psiAnalytical(xVals)
+# Analytical
+plt.plot(x, psi_exact(x, n), "k--", label=f"Analytical n={n}")
 
-# Plot
-plt.plot(xVals, psiUnder, label="E=4.0 (under)")
-plt.plot(xVals, psiCorrect, label=f"E={Emid:.4f} (correct)")
-plt.plot(xVals, psiOver, label="E=6.0 (over)")
-plt.plot(xVals, psiExact, "k--", label="Analytical")
-plt.title("Wavefunction for n=1: Numerical vs Analytical")
+plt.title("Infinite Well ψ(x): Trial vs Eigenvalue")
 plt.xlabel("x")
 plt.ylabel("ψ(x)")
 plt.legend()
 plt.grid()
-plt.show() 
+plt.show()
