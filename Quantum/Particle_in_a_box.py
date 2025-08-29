@@ -1,48 +1,28 @@
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt 
-
-# Numerical (Euler)
-def solve(E, slope, N=1000):
-    h = 1/N
-    psi, phi = 0, slope
-    k = E/2
+def euler(k,slope,N=1000):
+    h=1/N
+    psi,phi=0,slope
     psi_values = [psi]
+    E = k**2/2
     for i in range(N):
         psi += h*phi
-        phi += h*(-(k**2)*psi)   # corrected equation
+        phi += h*(-2*E*psi)
         psi_values.append(psi)
     return np.array(psi_values)
-
-# Analytical
-def exact(x, n):
-    return np.sqrt(2)*np.sin(n*np.pi*x)
-
-# Parameters
 N = 1000
 x = np.linspace(0,1,N+1)
-
-# Analytical curves for n=1,2,3
-plt.plot(x, exact(x,n=1))
-
-# Numerical for n=1
+# For n = 1
 n = 1
-
-E1 = 6
-E2 = 6.25 
-E3 = 7
-
-slope = np.sqrt(2)*n*np.pi    # correct initial slope
-psi_numerical1 = solve(E1, slope, N)
-psi_numerical2 = solve(E2, slope, N)
-psi_numerical3 = solve(E3, slope, N)
-
-plt.plot(x, psi_numerical1, color='green', label="Numerical n=1")
-plt.plot(x, psi_numerical2, '--', color='red', label="Numerical n=1")
-plt.plot(x, psi_numerical3, color='black', label="Numerical n=1")
-
+k_true = n*np.pi
+k_under = k_true*0.8
+k_over = k_true*1.2
+slope = np.sqrt(2)*n*np.pi
+psi_exact = np.sqrt(2)*np.sin(n*np.pi*x)
+plt.plot(x,euler(k_true,slope,N),label='Exact')
+plt.plot(x,euler(k_under,slope,N),label='Overshoot')
+plt.plot(x,euler(k_over,slope,N),label='Undershoot')
+plt.plot(x,psi_exact,linestyle='--',label='Analytical')
 plt.legend()
-plt.xlabel("x")
-plt.ylabel("ψ(x)")
-plt.title("Particle in a Box: Analytical vs Numerical (Euler)")
 plt.grid()
-plt.show() 
+plt.show()
