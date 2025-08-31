@@ -12,20 +12,24 @@ def euler(k,slope,N=1000):
     return np.array(psi_values)
 N = 1000
 x = np.linspace(0,1,N+1)
+plt.figure(figsize=(12,8))
 # For n = 1
-n = 1
-k_true = n*np.pi
-k_under = k_true*0.8
-k_over = k_true*1.2
-slope = np.sqrt(2)*n*np.pi
-psi_exact = np.sqrt(2)*np.sin(n*np.pi*x)
-plt.plot(x,euler(k_true,slope,N),label='Exact')
-plt.plot(x,euler(k_under,slope,N),label='Overshoot')
-plt.plot(x,euler(k_over,slope,N),label='Undershoot')
-plt.plot(x,psi_exact,linestyle='--',label='Analytical')
-plt.title('For n=1')
-plt.xlabel('x')
-plt.ylabel('ψ(x)')
-plt.legend()
-plt.grid()
+for n in [1,2,3]:
+    plt.subplot(3,1,n)
+    k_true = n*np.pi
+    k_under = k_true*0.8
+    k_over = k_true*1.2
+    slope = np.sqrt(2)*n*np.pi
+    psi_exact = np.sqrt(2)*np.sin(n*np.pi*x)
+    plt.plot(x,euler(k_true,slope,N),label='Exact')
+    plt.plot(x,euler(k_under,slope,N),label='Overshoot')
+    plt.plot(x,euler(k_over,slope,N),label='Undershoot')
+    plt.plot(x,psi_exact,linestyle='--',label='Analytical')
+    plt.title(f'For n={n}')
+    plt.xlabel('x')
+    plt.ylabel('ψ(x)')
+    plt.legend()
+    plt.grid()
+    plt.suptitle("Particle in a Box")
+plt.tight_layout()
 plt.show()
