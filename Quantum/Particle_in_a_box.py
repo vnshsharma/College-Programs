@@ -1,35 +1,44 @@
-import numpy as np
+import numpy as np 
 import matplotlib.pyplot as plt 
-def euler(k,slope,N=1000):
-    h=1/N
-    psi,phi=0,slope
+def V(x):
+    V_outside = 1e3
+    potential = np.zeros_like(x)
+    for i in range(len(x)):
+        if 0 <= x[i] <= 1:
+            potential[i] = 0
+        else:
+            potential[i] = V_outside
+    return potential
+def euler(E, slope, x):
+    N = 1000
+    h = 1 / N
+    psi, phi = 0, slope
     psi_values = [psi]
-    E = k**2/2
+    potential = V(x)
     for i in range(N):
-        psi += h*phi
-        phi += h*(-2*E*psi)
+        psi += h * phi
+        phi += h * (2 * (potential[i] - E) * psi)
         psi_values.append(psi)
-    return np.array(psi_values)
+    psi = np.array(psi_values)
+    # normalize
+    psi /= np.sqrt(np.trapezoid(psi**2, x))
+    return psi
+def exact(n, x):
+    return np.sqrt(2) * np.sin(n * np.pi * x)
 N = 1000
-x = np.linspace(0,1,N+1)
-plt.figure(figsize=(12,8))
-# For n = 1
-for n in [1,2,3]:
-    plt.subplot(3,1,n)
-    k_true = n*np.pi
-    k_under = k_true*0.8
-    k_over = k_true*1.2
-    slope = np.sqrt(2)*n*np.pi
-    psi_exact = np.sqrt(2)*np.sin(n*np.pi*x)
-    plt.plot(x,euler(k_true,slope,N),label='Exact')
-    plt.plot(x,euler(k_under,slope,N),label='Overshoot')
-    plt.plot(x,euler(k_over,slope,N),label='Undershoot')
-    plt.plot(x,psi_exact,linestyle='--',label='Analytical')
-    plt.title(f'For n={n}')
-    plt.xlabel('x')
-    plt.ylabel('ψ(x)')
-    plt.legend()
-    plt.grid()
-    plt.suptitle("Particle in a Box")
+slope = 2
+x = np.linspace(0, 1, N + 1)
+En = [[4.4, 4.9, 5.4],[17.5, 19.5, 21.5],[39, 44, 49]]
+plt.figure(figsize=(12,7))
+for n in range(3):
+    plt.subplot(3,1,n+1)
+    for E in En[n]:
+        psi = euler(E,slope,x)
+        plt.plot(x,psi)
+        plt.plot(x,exact(n+1,x),'k--')
+        plt.xlabel('x')
+        plt.ylabel('ψ(x)')
+        plt.grid()
+plt.suptitle('Particle in a Box')
 plt.tight_layout()
 plt.show()
