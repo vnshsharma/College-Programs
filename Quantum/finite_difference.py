@@ -28,12 +28,13 @@ for i in range(N):
 for i in range(3):
     plt.subplot(3,1,(i+1))
     psi_exact = np.sqrt(2)*np.sin(np.pi*(i+1)*x)
-    plt.plot(x,psi_exact,label='Analytical')
+    E_exact = (((i+1)**2)*(np.pi**2))/2
+    plt.plot(x,psi_exact,color='red',label=f'Analytical, E={(E_exact):.6}')
     y = []
     for j in range(N):
         y.append(psi[j][i])
-    plt.plot(x,y,'--',label='Numerical')
-    plt.title(f'For n={i+1}, E={E[i]:.6}')
+    plt.plot(x,y,'k--',label=f'Numerical, E={E[i]:.6}')
+    plt.title(f'For n={i+1}')
     plt.xlabel('x')
     plt.ylabel('ψ(x)')
     plt.legend()
