@@ -25,6 +25,8 @@ def euler(E, slope, x):
     return psi
 def exact(n, x):
     return np.sqrt(2) * np.sin(n * np.pi * x)
+def E_exact(n):
+    return (n*np.pi)**2/2
 N = 1000
 slope = 2
 x = np.linspace(0, 1, N + 1)
@@ -34,11 +36,13 @@ for n in range(3):
     plt.subplot(3,1,n+1)
     for E in En[n]:
         psi = euler(E,slope,x)
-        plt.plot(x,psi)
-        plt.plot(x,exact(n+1,x),'k--')
-        plt.xlabel('x')
-        plt.ylabel('ψ(x)')
-        plt.grid()
+        plt.plot(x,psi,label=f'Numerical, E={E}')
+    plt.plot(x,exact(n+1,x),'k--',label=f'Analytical, E={round(E_exact(n+1),3)}')
+    plt.title(f'For n={n+1}')
+    plt.xlabel('x')
+    plt.ylabel('ψ(x)')
+    plt.grid()
+    plt.legend()
 plt.suptitle('Particle in a Box')
 plt.tight_layout()
 plt.show()
