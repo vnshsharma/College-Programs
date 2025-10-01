@@ -8,72 +8,85 @@ k = 100.0       # MeV/fm^2
 
 # Potential with anharmonic term
 def V(x, b):
-    return 0.5*k*x**2 + (1/3)*b*x**3
+    return 0.5 * k * x**2 + (1/3) * b * x**3
 
-# Euler method for Schrödinger equation
-def euler(E, slope, x, b):
-    h = x[1]-x[0]
+# Schrödinger solver (Euler)
+def solve_schrodinger(E, slope, x, b):
+    h = x[1] - x[0]
     psi, phi = 0.0, slope
     psi_values = [psi]
     potential = V(x, b)
 
-    for i in range(len(x)-1):
-        psi += h*phi
-        phi += h*(2*m/(hbarc**2))*(potential[i]-E)*psi
+    for i in range(len(x) - 1):
+        psi += h * phi
+        phi += h * (2 * m / (hbarc**2)) * (potential[i] - E) * psi
         psi_values.append(psi)
 
-    psi = np.array(psi_values)
-    # normalize
+    return np.array(psi_values)
+
+# Automatic energy bracketing + bisection
+def find_ground_state(x, b, slope=1.0, E_min=10, E_max=300, dE=2, tol=1e-3):
+    # Step 1: scan energies to find sign change
+    energies = np.arange(E_min, E_max, dE)
+    prev_val = solve_schrodinger(energies[0], slope, x, b)[-1]
+
+    E_low, E_high = None, None
+    for E in energies[1:]:
+        val = solve_schrodinger(E, slope, x, b)[-1]
+        if prev_val * val < 0:  # sign change found
+            E_low, E_high = E - dE, E
+            break
+        prev_val = val
+
+    if E_low is None:
+        raise ValueError("No eigenvalue found in scan range. Increase E_max.")
+
+    # Step 2: bisection method
+    while (E_high - E_low) > tol:
+        E_mid = 0.5 * (E_low + E_high)
+        psi_mid = solve_schrodinger(E_mid, slope, x, b)[-1]
+
+        psi_low = solve_schrodinger(E_low, slope, x, b)[-1]
+
+        if psi_low * psi_mid <= 0:
+            E_high = E_mid
+        else:
+            E_low = E_mid
+
+    E_ground = 0.5 * (E_low + E_high)
+    psi = solve_schrodinger(E_ground, slope, x, b)
+
+    # Normalize
     psi /= np.sqrt(np.trapz(psi**2, x))
-    return psi
+    return E_ground, psi
 
 # Grid
 N = 2000
-x = np.linspace(0, 5, N+1)   # radial coordinate
-slope = 1.0
+x = np.linspace(-5, 5, N+1)
 
-# Cases
-b_values = [0, 10, 30]
-trial_E = [95, 100, 105]  # trial energies
+# Different anharmonic strengths
+b_values = [0, 10, 30, -10]
 
-# Subplots
-plt.figure(figsize=(12, 8))
+# Plot
+plt.figure(figsize=(12, 10))
 
-# First subplot for b=0
-plt.subplot(3, 1, 1)
-for E in trial_E:
-    psi = euler(E, slope, x, b_values[0])
-    plt.plot(x, psi + E/100, label=f"E={E} MeV")
-plt.plot(x, V(x, b_values[0])/100, 'k--', label="V(r)/100")
-plt.title("Wavefunctions for b=0 MeV/fm³")
-plt.xlabel("r (fm)")
-plt.ylabel("ψ(r)")
-plt.legend()
-plt.grid()
+for idx, b in enumerate(b_values, 1):
+    E, psi = find_ground_state(x, b)
+    Vx = V(x, b)
 
-# Second subplot for b=10
-plt.subplot(3, 1, 2)
-for E in trial_E:
-    psi = euler(E, slope, x, b_values[1])
-    plt.plot(x, psi + E/100, label=f"E={E} MeV")
-plt.plot(x, V(x, b_values[1])/100, 'k--', label="V(r)/100")
-plt.title("Wavefunctions for b=10 MeV/fm³")
-plt.xlabel("r (fm)")
-plt.ylabel("ψ(r)")
-plt.legend()
-plt.grid()
+    # scale ψ for visibility
+    scale_factor = (max(Vx) - min(Vx)) * 0.3
+    psi_scaled = psi * scale_factor + E
 
-# Third subplot for b=30
-plt.subplot(3, 1, 3)
-for E in trial_E:
-    psi = euler(E, slope, x, b_values[2])
-    plt.plot(x, psi + E/100, label=f"E={E} MeV")
-plt.plot(x, V(x, b_values[2])/100, 'k--', label="V(r)/100")
-plt.title("Wavefunctions for b=30 MeV/fm³")
-plt.xlabel("r (fm)")
-plt.ylabel("ψ(r)")
-plt.legend()
-plt.grid()
+    plt.subplot(2, 2, idx)
+    plt.plot(x, Vx, 'k--', label="Potential V(x)")
+    plt.plot(x, psi_scaled, 'r', label=f"Ground ψ(x), E≈{E:.2f} MeV")
+
+    plt.title(f"Anharmonic Oscillator (b={b} MeV/fm³)")
+    plt.xlabel("x (fm)")
+    plt.ylabel("Energy / ψ(x)")
+    plt.legend()
+    plt.grid()
 
 plt.tight_layout()
 plt.show()
