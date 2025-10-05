@@ -57,7 +57,7 @@ def find_ground_state(x, b, slope=1.0, E_min=10, E_max=300, dE=2, tol=1e-3):
     psi = solve_schrodinger(E_ground, slope, x, b)
 
     # Normalize
-    psi /= np.sqrt(np.trapz(psi**2, x))
+    psi /= np.sqrt(np.trapezoid(psi**2, x))
     return E_ground, psi
 
 # Grid
