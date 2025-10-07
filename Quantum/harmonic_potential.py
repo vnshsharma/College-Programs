@@ -1,64 +1,78 @@
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Parameters
-N = 300
-x_min, x_max = -5, 5
-x = np.linspace(x_min, x_max, N)
+N = 400
+k = 100
+m = 940
+hcut = 197.3
+x = np.linspace(-4, 4, N)
 h = x[1] - x[0]
-m = 940.0     # mass
-k = 100.0     # spring constant
-hcut = 197.3  # ħ (MeV·fm)
+
+# Potential Energy
+V = np.zeros(N)
+for i in range(N):
+    V[i] = 0.5 * k * x[i]**2
 
 # Hamiltonian Matrix
-A = np.zeros((N, N))
+H = np.zeros((N, N))
 for i in range(N):
-    A[i][i] = -2
+    H[i][i] = (hcut**2)/(m*h**2) + V[i]
     if i > 0:
-        A[i][i - 1] = 1
-    if i < N - 1:
-        A[i][i + 1] = 1
+        H[i][i-1] = -0.5 * (hcut**2)/(m*h**2)
+    if i < N-1:
+        H[i][i+1] = -0.5 * (hcut**2)/(m*h**2)
+E, psi = np.linalg.eigh(H)
 
-# Kinetic energy operator scaling
-for i in range(N):
-    for j in range(N):
-        A[i][j] = -(hcut**2) * A[i][j] / (2 * m * h**2)
+# Normalization Numerical Solution
+for n in range(psi.shape[1]):
+    norm = 0
+    for i in range(N):
+        norm += psi[i][n]**2 * h
+    for i in range(N):
+        psi[i][n] /= np.sqrt(norm)
 
-# Add potential energy
-for i in range(N):
-    Vx = 0.5 * k * x[i]**2
-    A[i][i] += Vx
+def get_wavefunction(psi_matrix, N, column):
+    wf = np.zeros(N)
+    for i in range(N):
+        wf[i] = psi_matrix[i][column]
+    return wf
 
-# Solve eigenvalue problem
-E, psi = np.linalg.eigh(A)
+alpha = np.sqrt(m * k) / hcut
 
-# Normalize eigenfunctions using loops
-for n in range(len(E)):
-    sq_vals = []
-    for j in range(N):
-        sq_vals.append(psi[j][n]**2)
-    norm = np.sqrt(np.trapezoid(sq_vals, x))
-    for j in range(N):
-        psi[j][n] /= norm
-    if psi[0][n] < 0:  # flip sign for consistency
-        for j in range(N):
-            psi[j][n] = -psi[j][n]
+def psi_analytical(n, x, alpha):
+    if n == 0:
+        Hn = 1
+    elif n == 1:
+        Hn = 2 * alpha * x
+    elif n == 2:
+        Hn = 4 * (alpha*x)**2 - 2
+    else:
+        Hn = 0  
+    norm = np.sqrt(alpha / (np.sqrt(np.pi) * 2**n * math.factorial(n)))
+    return norm * Hn * np.exp(-0.5 * (alpha*x)**2)
 
-# Plot potential
-plt.plot(x, 0.5 * k * x**2, 'k--', label="Potential V(x)")
+# --- Plot ---
+plt.figure(figsize=(10,8))
 
-# Plot selected eigenstates with better scaling
-levels = [0, 1, 2, 20]
-scale_factor = 10.0  # makes wavefunction curves more visible
-for n in levels:
-    y = []
-    for j in range(N):
-        y.append(scale_factor * psi[j][n] + E[n])  
-    plt.plot(x, y, label=f'n={n}, E={E[n]:.2f}')
+# Numerical vs Analytical for n = 0,1,2
+for i in range(3):
+    plt.subplot(2, 2, i+1)
+    wf = get_wavefunction(psi, N, i)
+    plt.plot(x, wf, label='Numerical')
+    plt.plot(x, psi_analytical(i, x, alpha), '--k', label='Analytical')
+    plt.title(f'For n={i}')
+    plt.legend()
+    plt.grid()
 
-plt.xlabel("x")
-plt.ylabel("Energy / ψ(x)")
-plt.title("Quantum Harmonic Oscillator (Numerical)")
+# n = 20 
+plt.subplot(2, 2, 4)
+wf20 = get_wavefunction(psi, N, 20)
+plt.plot(x, wf20, label='Numerical')
+plt.title('For n=20')
 plt.legend()
 plt.grid()
+
+plt.suptitle('Harmonic Oscillator')
+plt.tight_layout()
 plt.show()
