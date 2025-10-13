@@ -45,7 +45,7 @@ def solve_ground_state(b):
     psi0 = wavefuncs[:, 0]
 
     # Normalize wavefunction
-    norm = np.sqrt(np.trapz(psi0**2, x))
+    norm = np.sqrt(np.trapezoid(psi0**2, x))
     psi0 /= norm
 
     return E0, psi0, V
