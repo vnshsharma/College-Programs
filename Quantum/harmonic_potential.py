@@ -77,3 +77,7 @@ plt.grid()
 plt.suptitle('Harmonic Oscillator')
 plt.tight_layout()
 plt.show() 
+
+for n in range(3):
+    print(f"E[{n}] = {E[n]:.4f} MeV")
+print(f"E[20] = {E[20]:.4f} MeV")
