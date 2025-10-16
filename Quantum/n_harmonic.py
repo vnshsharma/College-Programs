@@ -1,82 +1,56 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.sparse import diags
-from scipy.sparse.linalg import eigsh
+import numpy as np 
+import matplotlib.pyplot as plt 
 
-# =====================================================
-#                Physical Parameters
-# =====================================================
-m = 940.0                     # MeV/c^2
-k = 100.0                     # MeV/fm^2
-b_values = [0.0, 10.0, 30.0]   # MeV/fm^3
-hbar_c = 197.3                # MeV*fm
+N = 400
+k = 100
+m = 940
+hcut = 197.3
+x = np.linspace(-4,4,N)
+h = x[1]-x[0]
+b_val = [0,10,30]
 
-# =====================================================
-#                Numerical Parameters
-# =====================================================
-x_min, x_max = -8.0, 8.0      # Position range (fm)
-N = 500                       # Grid points
-x = np.linspace(x_min, x_max, N)
-dx = x[1] - x[0]
+# Build Hamiltonian
+def hamiltonian(b):
+    V = 0.5*k*x**2+(1/3)*b*x**3
+    H = np.zeros((N,N))
+    coeff = (hcut**2)/(m*h**2)
+    for i in range(N):
+        H[i,i] = coeff+V[i]
+        if i>0:
+            H[i,i-1] = -0.5*coeff
+        if i<N-1:
+            H[i,i+1] = -0.5*coeff
+    return H,V
 
-# =====================================================
-#                Kinetic Energy Matrix
-# =====================================================
-factor = (hbar_c**2) / (2 * m * dx**2)
-main_diag = np.full(N, 2 * factor)
-off_diag = np.full(N - 1, -factor)
-T_sparse = diags([off_diag, main_diag, off_diag], offsets=[-1, 0, 1], format='csr')
+plt.figure(figsize=(12,10))
+for idx,b in enumerate(b_val):
+    H,V = hamiltonian(b)
+    E,psi = np.linalg.eigh(H)
 
-# =====================================================
-#      Function to Solve for Ground State Energy
-# =====================================================
-def solve_ground_state(b):
-    """Solve the ground state energy and wavefunction for a given b value."""
-    # Potential: V(x) = 1/2 k x^2 + 1/3 b x^3
-    V = 0.5 * k * x**2 + (1.0 / 3.0) * b * x**3
-    V_matrix = diags(V, 0, format='csr')
+    print(f"for b = {b}; Ground state energy E=", round(E[1],4))
 
-    # Hamiltonian
-    H = T_sparse + V_matrix
+    plt.subplot(3,2,2*idx+1)
+    plt.plot(x,V,'r',label=f'Potential (b={b})')
+    plt.xlabel('x')
+    plt.ylabel('V(x)')
+    plt.title(f'Potential for b={b}')
+    plt.grid()
+    plt.legend()
 
-    # Solve for the lowest eigenvalue and eigenvector
-    energies, wavefuncs = eigsh(H, k=1, which='SA')
-    E0 = energies[0]
-    psi0 = wavefuncs[:, 0]
+    plt.subplot(3,2,2*idx+2)
+    P = psi[:,0]**2
+    P /= np.trapezoid(P, x)
+    P_shifted = P * 300
+    plt.plot(x,P_shifted,label=f'|ψ₀|², E={round(E[1],4)}')
+    plt.plot(x,V,'k--',label='Potential')
+    plt.xlabel('x')
+    plt.ylabel('Probability Density')
+    plt.title(f'Probability Densities (b={b})')
+    plt.fill_between(x,min(V),P_shifted,color='blue',alpha=0.3)
+    plt.legend()
+    plt.grid()
 
-    # Normalize wavefunction
-    norm = np.sqrt(np.trapezoid(psi0**2, x))
-    psi0 /= norm
 
-    return E0, psi0, V
-
-# =====================================================
-#                Plotting with Subplots
-# =====================================================
-fig, axes = plt.subplots(1, len(b_values), figsize=(18, 6), sharey=True)
-fig.suptitle("Anharmonic Oscillator — Ground State Energy & Wavefunction", fontsize=14, fontweight='bold')
-
-for i, b in enumerate(b_values):
-    # Solve Schrödinger equation
-    E0, psi0, V = solve_ground_state(b)
-
-    # Adaptive scaling for better visualization
-    scale_factor = (np.max(V) - np.min(V)) * 0.25
-
-    ax = axes[i]
-    ax.plot(x, V, 'r--', label="Potential V(x)")
-    ax.plot(x, psi0 * scale_factor + E0, 'b', label="Ground State ψ₀(x)")
-
-    # Fill under the wavefunction for clarity
-    ax.fill_between(x, E0, psi0 * scale_factor + E0, color='blue', alpha=0.2)
-
-    # Plot details
-    ax.set_title(f"b = {b} MeV/fm³\nE₀ = {E0:.3f} MeV", fontsize=11)
-    ax.set_xlabel("x (fm)")
-    if i == 0:
-        ax.set_ylabel("Energy / Wavefunction (MeV)")
-    ax.grid(True)
-    ax.legend(fontsize=9)
-
-plt.tight_layout(rect=[0, 0, 1, 0.95])
-plt.show()
+plt.suptitle('Anharmonic Oscillator',fontsize=16)
+plt.tight_layout()
+plt.show()    
