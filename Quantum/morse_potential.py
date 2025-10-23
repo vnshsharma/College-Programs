@@ -91,3 +91,6 @@ print("Vibrational energy levels (in eV):")
 for n in states:
     print(f'n={n}: Morse E={E_morse[n]:.2f}, Harmonic E={E_harm[n]:.2f}')
 print(f'Near Dissociation: Morse E={E_morse[-1]:.2f} eV') 
+
+mu = m / 2      # reduced mass of H2 in eV/(c^2) 
+print(f"Reduced mass of H2: {mu:.2e} eV/c^2") 
