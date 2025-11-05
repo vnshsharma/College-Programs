@@ -45,3 +45,5 @@ print("Energy levels:")
 print(" n    E_morse        E_harm")
 for n in states:
     print(f"{n:2d}   {E_morse[n]:10.4f}   {E_harmonic[n]:10.4f}")
+reduced_mass = m/2
+print(f'Reduced Mass: {reduced_mass:.2e}')
