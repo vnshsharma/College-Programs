@@ -30,4 +30,4 @@ for idx,n in enumerate([1,2]):
     print(f'for n={n}, Energy={E[n]:.2f}')
 plt.suptitle('Hydrogen Atom')
 plt.tight_layout()
-plt.show()
+plt.show() 
