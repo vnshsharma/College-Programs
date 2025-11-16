@@ -1,45 +1,15 @@
-import math
-import numpy as np
-import matplotlib.pyplot as plt
-
-N = 400
-k = 100
-m = 940
-hcut = 197.3
+import math 
+import numpy as np 
+import matplotlib.pyplot as plt 
+N = 400 
 x = np.linspace(-4,4,N)
+m = 940 
+hcut = 197.3
 h = x[1]-x[0]
-
+k = 100
 omega = np.sqrt(k/m)
-
-V = np.zeros(N)
-for i in range(N):
-    V[i] = 0.5*k*x[i]**2
-
-H = np.zeros((N,N))
-for i in range(N):
-    H[i][i] = (hcut**2)/(m*h**2)+V[i]
-    if i>0:
-        H[i][i-1] = -0.5*(hcut**2)/(m*h**2)
-    if i<N-1:
-        H[i][i+1] = -0.5*(hcut**2)/(m*h**2)
-E,psi = np.linalg.eigh(H)
-
-for n in range(psi.shape[1]):
-    norm = 0
-    for i in range(N):
-        norm += psi[i][n]**2*h
-    for i in range(N):
-        psi[i][n] /= np.sqrt(norm)
-
-def get_wavefunction(psi,N,column):
-    wf = np.zeros(N)
-    for i in range(N):
-        wf[i] = psi[i][column]
-    return wf
-
 alpha = np.sqrt(m*omega/hcut)
-
-def psi_analytical(n,x,alpha):
+def analytic(n,x,alpha):
     if n == 0:
         Hn = 1
     elif n == 1:
@@ -48,36 +18,31 @@ def psi_analytical(n,x,alpha):
         Hn = 4*(alpha*x)**2-2
     else:
         Hn = 0
-    norm = np.sqrt(alpha/(np.sqrt(np.pi)*2**n*math.factorial(n)))
+    norm = np.sqrt(alpha/(np.sqrt(np.pi)*(2**n)*math.factorial(n)))
     return norm*Hn*np.exp(-0.5*(alpha*x)**2)
-
-plt.figure(figsize=(10,8))
-
-for i in range(3):
-    plt.subplot(2,2,i+1)
-    wf_num = get_wavefunction(psi,N,i)
-    wf_ana = psi_analytical(i,x,alpha)
-
-    if i == 2:
-        wf_num = -wf_num
-    
-    plt.plot(x,wf_num,label='Numerical')
-    plt.plot(x,wf_ana,'--k',label='Analytical')
-    plt.title(f'Ground State: n={i}')
-    plt.legend()
-    plt.grid()
-
-plt.subplot(2,2,4)
-wf20 = get_wavefunction(psi,N,20)
-plt.plot(x,wf20,label='Numerical')
-plt.title("High State: n=20")
+def analytic_energy(n):
+    return (n+0.5)*hcut*omega
+coeff = (hcut**2)/(2*m*h**2)
+H = np.zeros((N,N))
+V = 0.5*k*x**2
+for i in range(N):
+    H[i,i] = 2*coeff+V[i]
+    if i>0:
+        H[i,i-1] = -coeff
+    if i<N-1:
+        H[i,i+1] = -coeff
+E,psi = np.linalg.eigh(H)
+for i in range(N):
+    psi[:,i] /= np.sqrt(np.trapezoid(psi[:,i]**2,x))
+plt.plot(x,V,label='Potential')
+print('n      Num. Energy     Ana. Energy')
+for n in ([0,1,2]):
+    plt.plot(x,psi[:,n]**2*80+E[n],label=f'n={n} Numerical')
+    plt.plot(x,analytic(n,x,alpha)**2*80+analytic_energy(n),label=f'n={n} Analytical',linestyle='--',color='black')
+    print(f'{n}      {E[n]:.2f}          {analytic_energy(n):.2f}')
+plt.title("Harmonic Oscillator")
+plt.xlabel('x')
+plt.ylabel('Energy')
 plt.legend()
 plt.grid()
-
-plt.suptitle('Harmonic Oscillator')
-plt.tight_layout()
 plt.show() 
-
-for n in range(3):
-    print(f"E[{n}] = {E[n]:.4f} MeV")
-print(f"E[20] = {E[20]:.4f} MeV")
